@@ -1,6 +1,6 @@
 # MRN Reusable Block Library
 
-`mrn-reusable-block-library` is a reusable content system for MRN sites. The current source tree lives in `plugins/mrn-reusable-block-library/` as an optional shared standard plugin.
+`mrn-reusable-block-library` is a reusable content system for MRN sites. The canonical source lives in the independent `mrnwebdesigns/mrn-reusable-block-library` repository; MRN uses a local checkout symlink for stack integration.
 
 It can be used without `mrn-base-stack`, but it does not bring the full `mrn-base-stack` front-end layout system with it. The plugin owns the reusable block content models and rendering entry points. The active theme owns the final presentation.
 
@@ -49,7 +49,7 @@ Current template slugs:
 - `partners`
 - `generic-block`
 
-The plugin lookup is implemented in `mrn_rbl_locate_template()` in [mrn-reusable-block-library.php](/Users/khofmeyer/Development/MRN/plugins/mrn-reusable-block-library/mrn-reusable-block-library.php).
+The plugin lookup is implemented in `mrn_rbl_locate_template()` in [mrn-reusable-block-library.php](/Users/khofmeyer/Development/MRN-plugins/mrn-reusable-block-library/mrn-reusable-block-library.php).
 
 ## Minimum Theme Integration
 
@@ -129,7 +129,7 @@ Plugin templates receive a `$context` array. Common keys include:
 - `$context['fields']`
 - `$context['block_name']`
 
-See the header comments in the templates inside [templates](/Users/khofmeyer/Development/MRN/plugins/mrn-reusable-block-library/templates).
+See the header comments in the templates inside [templates](/Users/khofmeyer/Development/MRN-plugins/mrn-reusable-block-library/templates).
 
 ## Practical Recommendation
 
