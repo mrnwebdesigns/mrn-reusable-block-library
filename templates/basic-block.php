@@ -89,6 +89,8 @@ if ( isset( $motion_contract['classes'] ) && is_array( $motion_contract['classes
 	$classes = array_merge( $classes, $motion_contract['classes'] );
 }
 
+$classes = function_exists( 'mrn_rbl_merge_layout_classes' ) ? mrn_rbl_merge_layout_classes( $classes, $fields ) : $classes;
+
 $inline_styles = array();
 
 if ( '' !== $bg_color && function_exists( 'mrn_site_colors_get_css_var' ) ) {

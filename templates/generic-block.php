@@ -15,10 +15,14 @@ if (!$post instanceof WP_Post) {
     return;
 }
 
+$fields  = isset($context['fields']) && is_array($context['fields']) ? $context['fields'] : array();
+$classes = array('mrn-reusable-block', 'mrn-reusable-block--generic');
+$classes = function_exists('mrn_rbl_merge_layout_classes') ? mrn_rbl_merge_layout_classes($classes, $fields) : $classes;
+
 echo function_exists('mrn_rbl_get_anchor_markup') ? mrn_rbl_get_anchor_markup($context) : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Anchor markup is escaped in the helper.
 ?>
 <section
-    class="mrn-reusable-block mrn-reusable-block--generic"
+    class="<?php echo esc_attr(implode(' ', $classes)); ?>"
     data-block-id="<?php echo esc_attr((string) $post->ID); ?>"
     data-block-slug="<?php echo esc_attr((string) $post->post_name); ?>"
 >
