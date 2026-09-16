@@ -1,9 +1,9 @@
 # Stack Baseline - MRN Reusable Block Library
 
 ## Baseline Snapshot
-- Date pinned: 2026-08-16
+- Date pinned: 2026-09-16
 - Plugin source path: `/Users/khofmeyer/Development/MRN-plugins/mrn-reusable-block-library`
-- Current plugin version: `0.1.28`
+- Current plugin version: `0.2.0`
 - Intended integration target: optional plugin catalog
 - Current release model: independent optional shared standard plugin repository
 

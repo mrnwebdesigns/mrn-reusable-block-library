@@ -103,6 +103,8 @@ if (!empty($motion_contract['classes']) && is_array($motion_contract['classes'])
     $classes = array_merge($classes, $motion_contract['classes']);
 }
 
+$classes = function_exists('mrn_rbl_merge_layout_classes') ? mrn_rbl_merge_layout_classes($classes, $fields) : $classes;
+
 $section_attrs = !empty($accent_contract['attributes']) && is_array($accent_contract['attributes']) ? $accent_contract['attributes'] : array();
 $section_attrs = function_exists('mrn_rbl_merge_attributes') ? mrn_rbl_merge_attributes($section_attrs, isset($motion_contract['attributes']) && is_array($motion_contract['attributes']) ? $motion_contract['attributes'] : array()) : array_merge($section_attrs, isset($motion_contract['attributes']) && is_array($motion_contract['attributes']) ? $motion_contract['attributes'] : array());
 $section_attr_html = function_exists('mrn_rbl_get_html_attributes') ? mrn_rbl_get_html_attributes($section_attrs) : '';

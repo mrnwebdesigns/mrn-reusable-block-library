@@ -131,6 +131,29 @@ Plugin templates receive a `$context` array. Common keys include:
 
 See the header comments in the templates inside [templates](/Users/khofmeyer/Development/MRN-plugins/mrn-reusable-block-library/templates).
 
+## Layout Class Contract
+
+Every reusable layout exposes **Layout Class** in its Configs tab, under Basic
+Setting and directly after Anchor ID. Editors may enter one or more classes
+separated by commas. A leading period is optional, so these values are
+equivalent:
+
+```text
+hero-row, featured
+.hero-row, .featured
+```
+
+The plugin sanitizes, deduplicates, and appends the resulting classes to the
+outermost element rendered by the reusable layout template. Theme overrides
+should preserve that contract by calling `mrn_rbl_merge_layout_classes()` when
+they build the outer element's class list.
+
+## Release Packaging
+
+Run `bin/build-release.sh` from any checkout to build the versioned Fleet
+artifact under `dist/`. The archive excludes repository-only QA, test, and
+build files and retains the plugin directory as its single top-level root.
+
 ## Practical Recommendation
 
 If you hand this plugin to another developer:

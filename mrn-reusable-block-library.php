@@ -3,7 +3,7 @@
  * Plugin Name: MRN Reusable Block Library
  * Description: Adds a reusable block library powered by typed custom post types for editor-managed content blocks.
  * Author: MRN Web Designs
- * Version: 0.1.28
+ * Version: 0.2.0
  */
 
 defined('ABSPATH') || exit;
@@ -813,7 +813,7 @@ function mrn_rbl_render_block_as_stack_row(WP_Post $post, array $extra_context =
 
     $host_row = isset($extra_context['host_row']) && is_array($extra_context['host_row']) ? $extra_context['host_row'] : array();
 
-    foreach (array('section_width', 'sub_content_width', 'anchor', 'internal_name', 'include_in_faq_jump_nav', 'faq_jump_nav_label', 'motion_settings') as $field_name) {
+    foreach (array('section_width', 'sub_content_width', 'anchor', 'layout_class', 'internal_name', 'include_in_faq_jump_nav', 'faq_jump_nav_label', 'motion_settings') as $field_name) {
         if (array_key_exists($field_name, $extra_context) && !array_key_exists($field_name, $host_row)) {
             $host_row[$field_name] = $extra_context[$field_name];
         }
@@ -1268,6 +1268,89 @@ function mrn_rbl_get_anchor_field(string $key, string $name = 'anchor', string $
             'width' => '50',
         ),
     );
+}
+
+/**
+ * Build the standard custom layout-class field definition.
+ *
+ * @return array<string, mixed>
+ */
+function mrn_rbl_get_layout_class_field(string $key): array {
+    return array(
+        'key'          => sanitize_key($key),
+        'label'        => 'Layout Class',
+        'name'         => 'layout_class',
+        'type'         => 'text',
+        'instructions' => 'Optional CSS classes for the outermost layout element. Separate multiple classes with commas; leading periods are optional.',
+        'wrapper'      => array(
+            'width' => '50',
+        ),
+    );
+}
+
+/**
+ * Ensure the layout-class field appears immediately after the row anchor.
+ *
+ * @param array<int, mixed> $fields
+ * @return array<int, mixed>
+ */
+function mrn_rbl_ensure_layout_class_field(array $fields, string $key_seed = ''): array {
+    $normalized_fields = array();
+    $existing_field    = null;
+    $anchor_index      = null;
+    $anchor_key        = '';
+
+    foreach ($fields as $field) {
+        if (!is_array($field)) {
+            $normalized_fields[] = $field;
+            continue;
+        }
+
+        $field_name = isset($field['name']) ? sanitize_key((string) $field['name']) : '';
+        if ('layout_class' === $field_name) {
+            if (null === $existing_field) {
+                $existing_field = $field;
+            }
+            continue;
+        }
+
+        $normalized_fields[] = $field;
+        if (null !== $anchor_index || !in_array($field_name, array('anchor', 'anchor_id'), true)) {
+            continue;
+        }
+
+        $anchor_index = count($normalized_fields) - 1;
+        $anchor_key   = isset($field['key']) && is_string($field['key']) ? sanitize_key($field['key']) : '';
+    }
+
+    if (null === $anchor_index) {
+        return $fields;
+    }
+
+    $field_key = isset($existing_field['key']) && is_string($existing_field['key'])
+        ? sanitize_key($existing_field['key'])
+        : '';
+    if ('' === $field_key) {
+        $field_key = '' !== $anchor_key
+            ? $anchor_key . '_layout_class'
+            : sanitize_key($key_seed) . '_layout_class';
+    }
+    if ('' === $field_key || '_layout_class' === $field_key) {
+        $field_key = 'field_mrn_rbl_layout_class';
+    }
+
+    $layout_class_field = mrn_rbl_get_layout_class_field($field_key);
+    if (is_array($existing_field)) {
+        foreach (array('key', '_name', 'parent', 'parent_layout', 'default_value', 'conditional_logic') as $preserved_key) {
+            if (array_key_exists($preserved_key, $existing_field)) {
+                $layout_class_field[$preserved_key] = $existing_field[$preserved_key];
+            }
+        }
+    }
+
+    array_splice($normalized_fields, $anchor_index + 1, 0, array($layout_class_field));
+
+    return array_values($normalized_fields);
 }
 
 /**
@@ -2214,7 +2297,7 @@ function mrn_rbl_get_main_config_field_group_key(array $field): string {
         return 'appearance';
     }
 
-    if (in_array($field_name, array('anchor', 'anchor_id', 'include_in_faq_jump_nav', 'faq_jump_nav_label'), true)) {
+    if (in_array($field_name, array('anchor', 'anchor_id', 'layout_class', 'include_in_faq_jump_nav', 'faq_jump_nav_label'), true)) {
         return 'layout';
     }
 
@@ -2669,6 +2752,7 @@ function mrn_rbl_apply_primary_layout_field_contract(array $fields, bool $inject
 
     $normalized_fields = mrn_rbl_apply_tag_field_column_layout($normalized_fields);
     if ($inject_internal_name) {
+        $normalized_fields = mrn_rbl_ensure_layout_class_field($normalized_fields);
         $normalized_fields = mrn_rbl_group_main_config_fields_by_functionality($normalized_fields);
     }
 
@@ -2930,6 +3014,56 @@ function mrn_rbl_normalize_anchor_id($value): string {
     $value = ltrim($value, "# \t\n\r\0\x0B");
 
     return sanitize_title($value);
+}
+
+/**
+ * Normalize a comma-separated layout-class value for safe front-end output.
+ *
+ * @return array<int, string>
+ */
+function mrn_rbl_normalize_layout_classes($value): array {
+    if (function_exists('mrn_base_stack_normalize_layout_classes')) {
+        $classes = mrn_base_stack_normalize_layout_classes($value);
+
+        return is_array($classes) ? array_values($classes) : array();
+    }
+
+    if (!is_string($value)) {
+        return array();
+    }
+
+    $classes = array();
+    foreach (explode(',', $value) as $class_name) {
+        $class_name = ltrim(trim($class_name), ". \t\n\r\0\x0B");
+        if ('' === $class_name) {
+            continue;
+        }
+
+        $class_name = sanitize_html_class($class_name);
+        if ('' !== $class_name) {
+            $classes[$class_name] = $class_name;
+        }
+    }
+
+    return array_values($classes);
+}
+
+/**
+ * Append configured custom classes to a reusable layout's outer class list.
+ *
+ * @param array<int, string>   $classes Existing outer-element classes.
+ * @param array<string, mixed> $fields Reusable layout fields.
+ * @return array<int, string>
+ */
+function mrn_rbl_merge_layout_classes(array $classes, array $fields): array {
+    return array_values(
+        array_unique(
+            array_filter(
+                array_merge($classes, mrn_rbl_normalize_layout_classes($fields['layout_class'] ?? '')),
+                'strlen'
+            )
+        )
+    );
 }
 
 /**
