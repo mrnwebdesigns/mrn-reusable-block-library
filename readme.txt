@@ -3,7 +3,7 @@ Contributors: mrnwebdesigns
 Tags: acf, reusable blocks, content management
 Requires at least: 6.0
 Requires PHP: 7.4
-Stable tag: 0.2.0
+Stable tag: 0.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,6 +15,9 @@ MRN Reusable Block Library provides shared reusable content types, ACF field
 contracts, and rendering entry points. The active theme owns final presentation.
 
 == Changelog ==
+
+= 0.2.1 =
+* Reserve a new immutable package version for matching cumulative and independent Git exports. Runtime behavior is preserved.
 
 = 0.2.0 =
 * Added a Layout Class control after Anchor ID for every reusable layout.
