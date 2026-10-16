@@ -3,7 +3,7 @@
  * Plugin Name: MRN Reusable Block Library
  * Description: Adds a reusable block library powered by typed custom post types for editor-managed content blocks.
  * Author: MRN Web Designs
- * Version: 0.2.1
+ * Version: 0.2.2
  */
 
 defined('ABSPATH') || exit;
@@ -3465,6 +3465,22 @@ function mrn_rbl_get_content_link_contract_sub_fields(string $key_prefix, array 
             ...mrn_rbl_get_button_link_icon_fields($key_prefix . '_icon', $button_key),
         )
     );
+}
+
+/**
+ * Render an authored heading through the optional native presentation contract.
+ *
+ * @param array  $fields Authored block fields.
+ * @param string $heading Heading text.
+ * @return string Escaped inline markup.
+ */
+function mrn_rbl_get_heading_markup(array $fields, string $heading): string {
+    if (function_exists('mrn_base_stack_get_rotating_heading_markup')) {
+        return mrn_base_stack_get_rotating_heading_markup($fields, $heading);
+    }
+    return function_exists('mrn_base_stack_format_heading_inline_html')
+        ? mrn_base_stack_format_heading_inline_html($heading)
+        : esc_html($heading);
 }
 
 /**

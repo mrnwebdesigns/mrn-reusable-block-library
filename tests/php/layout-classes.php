@@ -74,6 +74,12 @@ function mrn_rbl_layout_class_test_assert_same( $expected, $actual, $message ) {
 	exit( 1 );
 }
 
+mrn_rbl_layout_class_test_assert_same(
+	'&lt;b&gt;Standalone heading&lt;/b&gt;',
+	mrn_rbl_get_heading_markup( array(), '<b>Standalone heading</b>' ),
+	'Headings remain escaped when the optional parent presentation contract is absent.'
+);
+
 $fields = mrn_rbl_ensure_layout_class_field(
 	array(
 		array(

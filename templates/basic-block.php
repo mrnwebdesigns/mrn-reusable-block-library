@@ -135,7 +135,7 @@ echo function_exists( 'mrn_rbl_get_anchor_markup' ) ? mrn_rbl_get_anchor_markup(
 
 							<?php if ( '' !== $heading ) : ?>
 								<<?php echo esc_html( $heading_tag ); ?> class="mrn-ui__heading">
-								<?php echo function_exists( 'mrn_base_stack_format_heading_inline_html' ) ? mrn_base_stack_format_heading_inline_html( $heading ) : esc_html( $heading ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+								<?php echo mrn_rbl_get_heading_markup( $fields, $heading ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 							</<?php echo esc_html( $heading_tag ); ?>>
 							<?php endif; ?>
 
