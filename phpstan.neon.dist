@@ -1,0 +1,9 @@
+parameters:
+    level: 0
+    paths:
+        - mrn-reusable-block-library.php
+        - templates
+    excludePaths:
+        # Standalone fixtures redefine WordPress globals in separate processes.
+        analyseAndScan:
+            - */tests/*
