@@ -3,7 +3,7 @@
  * Plugin Name: MRN Reusable Block Library
  * Description: Adds a reusable block library powered by typed custom post types for editor-managed content blocks.
  * Author: MRN Web Designs
- * Version: 0.2.2
+ * Version: 0.2.3
  */
 
 defined('ABSPATH') || exit;
@@ -501,6 +501,23 @@ function mrn_rbl_get_block_post($identifier): ?WP_Post {
         return null;
     }
 
+    if (false !== has_filter('wpml_object_id')) {
+        // Resolve the authored slug before applying the active language. WPML
+        // can constrain WP_Query even when get_posts suppresses its filters.
+        $post_types = mrn_rbl_get_post_types();
+        if ($post_types === array()) {
+            return null;
+        }
+
+        $post = get_page_by_path($slug, OBJECT, $post_types);
+        if (!$post instanceof WP_Post || !in_array($post->post_type, $post_types, true)
+            || !in_array($post->post_status, array('publish', 'draft', 'private'), true)) {
+            return null;
+        }
+
+        return mrn_rbl_get_block_for_current_language($post);
+    }
+
     $posts = get_posts(array(
         'post_type'              => mrn_rbl_get_post_types(),
         'name'                   => $slug,
@@ -513,6 +530,39 @@ function mrn_rbl_get_block_post($identifier): ?WP_Post {
     ));
 
     return isset($posts[0]) && $posts[0] instanceof WP_Post ? $posts[0] : null;
+}
+
+/**
+ * Select a saved translation without replacing intentionally cleared content.
+ *
+ * Numeric identifiers bypass this helper and retain their explicit target.
+ * Render permissions are still enforced by mrn_rbl_can_render_post().
+ */
+function mrn_rbl_get_block_for_current_language(WP_Post $post): WP_Post {
+    $translated_id = apply_filters('wpml_object_id', $post->ID, $post->post_type, true);
+    if (!is_numeric($translated_id) || (int) $translated_id <= 0 || (int) $translated_id === (int) $post->ID) {
+        return $post;
+    }
+
+    $translated = get_post((int) $translated_id);
+    if (!$translated instanceof WP_Post || $translated->post_type !== $post->post_type) {
+        return $post;
+    }
+
+    // ACF saves a field-key reference even when an editor clears the value.
+    // A translation with no saved field references is only an empty shell.
+    foreach (get_post_meta($translated->ID) as $key => $values) {
+        if (!is_string($key) || strpos($key, '_') !== 0) {
+            continue;
+        }
+        foreach ((array) $values as $value) {
+            if (is_string($value) && strpos($value, 'field_') === 0) {
+                return $translated;
+            }
+        }
+    }
+
+    return $post;
 }
 
 /**

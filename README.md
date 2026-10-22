@@ -19,6 +19,13 @@ It can be used without `mrn-base-stack`, but it does not bring the full `mrn-bas
 - a fallback generic template
 - shortcode rendering via `[mrn_block id="123"]` or `[mrn_block slug="my-block"]`
 
+On WPML sites, a slug can stay the same in translated host pages. The library
+finds that source block and then selects its translation for the current
+language. A missing or unsaved translation falls back to the source; saved
+translations whose fields were deliberately cleared keep that empty content.
+An explicit numeric ID continues to select exactly that block. Existing render
+permissions apply to both source blocks and translations.
+
 ## What The Plugin Does Not Own
 
 - the `Section Width` shell system used by `mrn-base-stack`

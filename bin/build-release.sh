@@ -29,6 +29,7 @@ rsync -a "$plugin_dir/" "$staging_dir/" \
 	--exclude 'bin' \
 	--exclude 'dist' \
 	--exclude 'phpcs.xml.dist' \
+	--exclude 'phpstan.neon.dist' \
 	--exclude 'stack.lock' \
 	--exclude 'tests'
 
